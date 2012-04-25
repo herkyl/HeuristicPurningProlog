@@ -13,13 +13,13 @@ el_tree(e, 2, [x, y, z, u, v]).
 % Lõikab ära harud, kui sügavus on üle max
 static_depth_trim_max_depth(1).
 static_depth_trim(Node, TrimmedChildren):-
-    el_tree(Node, Depth, Children),
-    static_depth_trim_max_depth(MaxDepth),
-    (	Depth < MaxDepth,
-    	get_same(Children, TrimmedChildren),
-    	!
-   	);
-    empty_list(TrimmedChildren).
+	el_tree(Node, Depth, Children),
+	static_depth_trim_max_depth(MaxDepth),
+	(	Depth < MaxDepth,
+		get_same(Children, TrimmedChildren),
+		!
+	);
+	empty_list(TrimmedChildren).
 
 % Meetod 4.1
 % Lõikab ära harud, kui neid on rohkem kui lubatud
@@ -46,8 +46,8 @@ get_same(A, A).
 % Eemaldab listist Count arv elemente
 splice([], _, []).
 splice([H|T], Count, NewList):-
-    ((Count < 1), get_same([H|T], NewList), !);
-    NewCount is Count - 1,
-    splice(T, NewCount, NewList).
+	((Count < 1), get_same([H|T], NewList), !);
+	NewCount is Count - 1,
+	splice(T, NewCount, NewList).
 
 % Arvamus selle kohta, kas on mÃµistlik laadida kogu sÃ¼gavus Ã¤ra, ja siis otsustada selle jÃ¤rgi
