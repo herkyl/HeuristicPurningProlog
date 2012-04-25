@@ -37,7 +37,7 @@ get_same(A, A).
 
 splice([], _, []).
 splice([H|T], Count, NewList):-
-    ((Count < 1), get_same([H|T], NewList), !);
+    ((Count <= 0), get_same([H|T], NewList), !);
     NewCount is Count - 1,
     splice(T, NewCount, NewList).
 
