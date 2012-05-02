@@ -8,6 +8,12 @@ el_tree(c, 2, []).
 el_tree(d, 2, []).
 el_tree(e, 2, [x, y, z, u, v]).
 
+% Annab kärpimis termide listi
+prune_terms(Terms):-
+	A = static_depth_trim,
+	B = static_children_half_trim,
+	Terms = [A, B].
+
 % root, a b, c d e, x q z u v
 
 % PEA PREDIKAAT - jooksutab programmi
@@ -18,10 +24,8 @@ prune_main:-
 % Depth - sügavus
 % Trimmed - kärbitud laste list
 prune(Children,	Depth, Trimmed):-
-	A = static_depth_trim,
-	B = static_children_half_trim,
-        Terms = [A, B],
-	prune_rec(Terms, Children, Depth, Trimmed).
+        prune_terms(PruneTerms),
+	prune_rec(PruneTerms, Children, Depth, Trimmed).
 
 % Rekursiivne meetod Termide kärpimis listi rakendamiseks
 % Call/1+ kasutame =.. ja call/1 asemel
