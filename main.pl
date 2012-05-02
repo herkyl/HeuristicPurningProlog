@@ -8,12 +8,38 @@ el_tree(c, 2, []).
 el_tree(d, 2, []).
 el_tree(e, 2, [x, y, z, u, v]).
 
+% root, a b, c d e, x q z u v
+
+prune_main:-
+	dfs([root]).
+
+prune(Children,	Depth, R):-
+	static_depth_trim(Children, Depth, B),
+	static_children_half_trim(B, R).
+
+% Depth first search
+dfs([Child|Rest]):-
+	write(Child), nl,
+	el_tree(Child, Depth, C),
+	prune(C, Depth, Children),
+	dfs(Children);
+	dfs(Rest).
+
+% Level order search
+los([Child|Rest]):-
+	write(Child), nl,
+	los(Rest),
+	!.
+los([Child|Rest]):-
+	write(Child), nl,
+	el_tree(Child, _, Children),
+	los(Children).
+
 
 % Meetod 1
 % Lõikab ära harud, kui sügavus on üle max
-static_depth_trim_max_depth(1).
-static_depth_trim(Node, TrimmedChildren):-
-	el_tree(Node, Depth, Children),
+static_depth_trim_max_depth(2).
+static_depth_trim(Children, Depth, TrimmedChildren):-
 	static_depth_trim_max_depth(MaxDepth),
 	(	Depth < MaxDepth,
 		get_same(Children, TrimmedChildren),
@@ -24,8 +50,7 @@ static_depth_trim(Node, TrimmedChildren):-
 % Meetod 4.1
 % Lõikab ära harud, kui neid on rohkem kui lubatud
 static_children_trim_max_children(1).
-static_children_trim(Node, TrimmedChildren):-
-	el_tree(Node, _, Children),
+static_children_trim(Children, TrimmedChildren):-
 	static_children_trim_max_children(MaxChildren),
 	length(Children, Count),
 	TrimCount is Count - MaxChildren,
@@ -33,8 +58,7 @@ static_children_trim(Node, TrimmedChildren):-
 
 % Meetod 4.2
 % Lõikab ära pooled harud, ümardab ülesse
-static_children_half_trim(Node, TrimmedChildren):-
-	el_tree(Node, _, Children),
+static_children_half_trim(Children, TrimmedChildren):-
 	length(Children, Length),
 	round(Length/2, Round),
 	TrimCount is Length - Round,
@@ -50,4 +74,7 @@ splice([H|T], Count, NewList):-
 	NewCount is Count - 1,
 	splice(T, NewCount, NewList).
 
-% Arvamus selle kohta, kas on mÃµistlik laadida kogu sÃ¼gavus Ã¤ra, ja siis otsustada selle jÃ¤rgi
+% kas on mõistlik laadida kogu sügavus ära, ja siis otsustada selle
+% järgi
+
+% el_tree/3 ei ole antud tipu hinda
