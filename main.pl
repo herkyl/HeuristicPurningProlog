@@ -24,18 +24,11 @@ prune(Children,	Depth, Trimmed):-
 	prune_rec(Terms, Children, Depth, Trimmed).
 
 % Rekursiivne meetod Termide kärpimis listi rakendamiseks
-prune_rec([Term|Rest], Children, Depth, Trimmed):-
-	length(Rest, Length), Length =< 0,
-	call_prune(Term, Children, Depth, Trimmed).
+% Call/1+ kasutame =.. ja call/1 asemel
+prune_rec([], Children, _, Children).
 prune_rec([Term|Rest], Children, Depth, R):-
-	call_prune(Term, Children, Depth, Trimmed),
+	call(Term, Children, Depth, Trimmed),
 	prune_rec(Rest, Trimmed, Depth, R).
-
-% Käivitab termi Term parameetritega.
-% Trimmed - Kärbitud laste list
-call_prune(Term, Children, Depth, Trimmed):-
-	Goal =.. [Term, Children, Depth, Trimmed],
-	call(Goal).
 
 % Depth first search
 dfs([Child|Rest]):-
