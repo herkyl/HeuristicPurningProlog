@@ -10,12 +10,32 @@ el_tree(e, 2, [x, y, z, u, v]).
 
 % root, a b, c d e, x q z u v
 
+% PEA PREDIKAAT - jooksutab programmi
 prune_main:-
 	dfs([root]).
 
-prune(Children,	Depth, R):-
-	static_depth_trim(Children, Depth, B),
-	static_children_half_trim(B, R).
+% Children - kärpimata lapsed
+% Depth - sügavus
+% Trimmed - kärbitud laste list
+prune(Children,	Depth, Trimmed):-
+	A = static_depth_trim,
+	B = static_children_half_trim,
+        Terms = [A, B],
+	prune_rec(Terms, Children, Depth, Trimmed).
+
+% Rekursiivne meetod Termide kärpimis listi rakendamiseks
+prune_rec([Term|Rest], Children, Depth, Trimmed):-
+	length(Rest, Length), Length =< 0,
+	call_prune(Term, Children, Depth, Trimmed).
+prune_rec([Term|Rest], Children, Depth, R):-
+	call_prune(Term, Children, Depth, Trimmed),
+	prune_rec(Rest, Trimmed, Depth, R).
+
+% Käivitab termi Term parameetritega.
+% Trimmed - Kärbitud laste list
+call_prune(Term, Children, Depth, Trimmed):-
+	Goal =.. [Term, Children, Depth, Trimmed],
+	call(Goal).
 
 % Depth first search
 dfs([Child|Rest]):-
@@ -50,7 +70,7 @@ static_depth_trim(Children, Depth, TrimmedChildren):-
 % Meetod 4.1
 % Lõikab ära harud, kui neid on rohkem kui lubatud
 static_children_trim_max_children(1).
-static_children_trim(Children, TrimmedChildren):-
+static_children_trim(Children, Depth, TrimmedChildren):-
 	static_children_trim_max_children(MaxChildren),
 	length(Children, Count),
 	TrimCount is Count - MaxChildren,
@@ -58,7 +78,7 @@ static_children_trim(Children, TrimmedChildren):-
 
 % Meetod 4.2
 % Lõikab ära pooled harud, ümardab ülesse
-static_children_half_trim(Children, TrimmedChildren):-
+static_children_half_trim(Children, Depth, TrimmedChildren):-
 	length(Children, Length),
 	round(Length/2, Round),
 	TrimCount is Length - Round,
