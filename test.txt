@@ -1,0 +1,24 @@
+el_tree(karu, 0, [a, b]).
+el_tree(root, 0, [a, b]).
+el_tree(a, 1, [c, d]).
+el_tree(b, 1, [e]).
+el_tree(c, 2, []).
+el_tree(d, 2, []).
+el_tree(e, 2, [x, y, z, u, v]).
+
+
+read_file(File):-
+	open(File, read, Stream),
+	read_line_to_codes(Stream, T),
+	close(Stream),
+	writeln(T),
+	load_line(T).
+
+load_line(end_of_file):-
+	writeln('baaaaaaaaaaaa'),
+	!.
+load_line(el_tree(A, B, C)) :-
+	writeln([A, B, C]).
+load_line(Term):-
+	assert(Term),
+	writeln(Term).
