@@ -1,8 +1,7 @@
 % tree(Root, Distance, List_of_leaves).
 :- dynamic tree/3.
-:- dynamic pruned_tree/3.
 
-tree(root, 0, [[a, 2], [b, 1]]).
+tree(root, 0, [[a, 1], [b, 1]]).
 tree(a, 1, [[c, 1], [d, 1]]).
 tree(b, 1, [[e, 1]]).
 tree(c, 2, []).
@@ -13,44 +12,44 @@ tree(e, 2, [[x, 2], [y, 1], [z, 1], [u, 1], [v, 2]]).
 % PEA PREDIKAAT - jooksutab programmi
 prune_main:-
     init,
+    prune_terms(Terms),
+    prune_main(Terms, _).
+
+prune_main(Terms, Pruned):-
+    init,
     calculate_tree(Cost, Count),
     writeln(['Cost:', Cost, 'Count:', Count]),
-	ignore(dfs([[root, 0]])),
-    calculate_pruned_tree(Cost2, Count2),
+	ignore(dfs([[root, 0]], Terms, Pruned)),
+	writeln(Pruned),
+    calculate_pruned_tree(Pruned, Cost2, Count2),
     writeln(['Cost:', Cost2, 'Count:', Count2]).
     
 init:-
     compile('util.pl'),
     compile('prune.pl'),
-    retractall(pruned_tree(_, _, _)).
+    retract(total_count(_)),
+    retract(total_cost(_)),
+    assert(total_count(0)),
+    assert(total_cost(0)).
 
 % Depth first search
-dfs([[Child, Cost]|Rest]):-
-	write(Child), nl,
+dfs([], _, []).
+dfs([[Child, Cost]|Rest], Terms, [[Child, Cost]|Append]):-
 	tree(Child, Depth, C),
-	prune(C, Depth, Children),
-	assert(pruned_tree([Child, Cost], Depth, Children)),
-	dfs(Children);
-	dfs(Rest).
-
-% Level order search
-los([[[Child, _], _]|Rest]):-
-	write(Child), nl,
-	los(Rest),
-	!.
-los([[Child, _]|_]):-
-	write(Child), nl,
-	tree(Child, _, Children),
-	los(Children).
+	prune(Terms, C, Depth, Children),
+	ignore(dfs(Children, Terms, ChildrenList)),
+	ignore(dfs(Rest, Terms, RestList)),
+	append(ChildrenList, RestList, Append).
 
 % Arvutab puu suuruse ja hinna
 calculate_tree(Cost, Count):-
     findall(X, tree(_, _, X), Nodes),
     calculate_list_of_children(Nodes, Cost, Count).
-calculate_pruned_tree(Cost, Count):-
-    findall(X, pruned_tree(_, _, X), Nodes),
-    calculate_list_of_children(Nodes, Cost, Count).
+calculate_pruned_tree(Nodes, Cost, Count):-
+    length(Nodes, Count),
+    calculate_children(Nodes, Cost).
 calculate_list_of_children([], 0, 0).
+
 calculate_list_of_children([List|T], Cost, ChildrenCount):-
     calculate_children(List, C),
     calculate_list_of_children(T, C2, CC),
@@ -91,6 +90,8 @@ test(sort_by_cost):-
     sort_by_cost([[a, 3], [b, 2], [c, 1]], [[c, 1], [b, 2], [a, 3]]),
     sort_by_cost([[a, 3], [b, 2], [c, 4]], [[b, 2], [a, 3], [c, 4]]),
     sort_by_cost([[a, 3]], [[a, 3]]),
+    sort_by_cost([[a,1], [b,1], [c,2], [d,0]], [[d, 0], [a, 1], [b, 1], [c, 2]]),
+    sort_by_cost([[a,1], [b,1]], [[a, 1], [b, 1]]),
     sort_by_cost([], []).
     
 test(static_depth_prune):-
@@ -112,5 +113,11 @@ test(static_children_half_prune):-
     static_children_half_prune([1, 2, 3], _, [1, 2]),
     static_children_half_prune([1], _, [1]),
     static_children_half_prune([], _, []).
-
+    
+% PUU LÄBIMISE TESTID
+    
+test(static_depth_prune):-
+    Terms = [static_depth_prune],
+    prune_main(Terms, Pruned).
+    
 :- end_tests(lists).

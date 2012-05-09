@@ -17,8 +17,9 @@ insert_sort([H|T],Acc,Sorted):-
 	insert(H,Acc,NAcc),
 	insert_sort(T,NAcc,Sorted).
 insert([N,X],[[N2,Y]|T],[[N2,Y]|NT]):-
-	X > Y,
-	insert([N,X],T,NT).
+	X >= Y,
+	insert([N,X],T,NT),
+	!.
 insert([N,X],[[N2,Y]|T],[[N,X],[N2,Y]|T]):-
 	X =< Y.
 insert([N,X],[],[[N,X]]).
@@ -35,5 +36,3 @@ prune_by_cost([[Child, Cost]|T], MaxCost, [[Child, Cost]|NewList]):-
 prune_by_cost([[_, Cost]|T], MaxCost, NewList):-
     Cost > MaxCost,
     prune_by_cost(T, MaxCost, NewList).
-    
-    

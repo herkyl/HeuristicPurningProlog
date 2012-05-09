@@ -9,6 +9,7 @@
 
 total_count(0).
 total_cost(0).
+avg_child_count(0).
 
 % Annab kärpimis termide listi
 prune_terms(Terms):-
@@ -17,13 +18,13 @@ prune_terms(Terms):-
 	C = dynamic_children_depth_prune,
 	D = static_price_prune,
 	E = dynamic_avgerage_cost_prune,
-	Terms = [A, B, C, D, E].
+	Terms = [E].
 
+% PruneTerms - kärpimis meetodid
 % Children - kärpimata lapsed
 % Depth - sügavus
 % Trimmed - kärbitud laste list
-prune(Children,	Depth, Trimmed):-
-    prune_terms(PruneTerms),
+prune(PruneTerms, Children,	Depth, Trimmed):-
     sort_by_cost(Children, Sorted),
 	prune_rec(PruneTerms, Sorted, Depth, Trimmed).
 
@@ -96,6 +97,6 @@ dynamic_avgerage_cost_prune(Children, _, TrimmedChildren):-
     assert(total_cost(NewCost)),
     assert(total_count(NewCount)),
     avg(Cost, Count, Avg),
+    writeln(Avg),
     prune_by_cost(Children, Avg, TrimmedChildren),
     !.
-    
