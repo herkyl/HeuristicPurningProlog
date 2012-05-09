@@ -23,7 +23,7 @@ prune_terms(Terms):-
 	C = dynamic_children_depth_prune,
 	D = static_price_prune,
 	E = dynamic_avgerage_cost_prune,
-	Terms = [D].
+	Terms = [A].
 
 % PruneTerms - kärpimis meetodid
 % Children - kärpimata lapsed
@@ -47,7 +47,7 @@ prune_rec([Term|Rest], Children, Depth, R):-
 static_depth_prune_max_depth(2).
 static_depth_prune(Children, Depth, TrimmedChildren):-
 	static_depth_prune_max_depth(MaxDepth),
-	(	Depth < MaxDepth,
+	(	Depth =< MaxDepth,
 		get_same(Children, TrimmedChildren),
 		!
 	);
