@@ -1,11 +1,17 @@
 % tree(Root, Distance, List_of_leaves).
 :- dynamic tree/3.
 
+%      ____root____ 
+%     |            |
+%  ___a___         b
+% |       |        |
+% c       d   _____e_____ 
+%            |  |  |  |  |
+%            x  y  z  u  v
+
 tree(root, 0, [[a, 1], [b, 1]]).
 tree(a, 1, [[c, 1], [d, 1]]).
 tree(b, 1, [[e, 1]]).
-tree(c, 2, []).
-tree(d, 2, []).
 tree(e, 2, [[x, 2], [y, 1], [z, 1], [u, 1], [v, 2]]).
 
 
@@ -13,16 +19,18 @@ tree(e, 2, [[x, 2], [y, 1], [z, 1], [u, 1], [v, 2]]).
 prune_main:-
     init,
     prune_terms(Terms),
-    prune_main(Terms, _).
+    prune_main(Terms, _, dfs),
+    !.
 
-prune_main(Terms, Pruned):-
+prune_main(Terms, Pruned, SearchAlgo):-
     init,
     calculate_tree(Cost, Count),
-    writeln(['Cost:', Cost, 'Count:', Count]),
-	ignore(dfs([[root, 0]], Terms, Pruned)),
+    writeln(['ALGO:', SearchAlgo, 'Cost:', Cost, 'Count:', Count]),
+    ignore(call(SearchAlgo, [[root, 0]], Terms, Pruned)),
 	writeln(Pruned),
     calculate_pruned_tree(Pruned, Cost2, Count2),
-    writeln(['Cost:', Cost2, 'Count:', Count2]).
+    writeln(['Cost:', Cost2, 'Count:', Count2]),
+    !.
     
 init:-
     compile('util.pl'),
@@ -30,7 +38,11 @@ init:-
     retract(total_count(_)),
     retract(total_cost(_)),
     assert(total_count(0)),
-    assert(total_cost(0)).
+    assert(total_cost(0)),
+    retract(total_child_count(_)),
+    retract(total_child_cost(_)),
+    assert(total_child_count(0)),
+    assert(total_child_cost(0)).
 
 % Depth first search
 dfs([], _, []).
@@ -40,7 +52,20 @@ dfs([[Child, Cost]|Rest], Terms, [[Child, Cost]|Append]):-
 	ignore(dfs(Children, Terms, ChildrenList)),
 	ignore(dfs(Rest, Terms, RestList)),
 	append(ChildrenList, RestList, Append).
-
+dfs([[Child, Cost]|Rest], Terms, [[Child, Cost]|RestList]):-
+	not(tree(Child, _, _)), % tegu on lehega
+	ignore(dfs(Rest, Terms, RestList)).
+	
+bfs(Level, Terms, Pruned):-
+	bfs(Level, Terms, 0, Pruned), !.
+bfs([], _, _, []):- !.
+bfs(Level, Terms, Depth, All):-
+    prune(Terms, Level, Depth, PrunedLevel),
+    merge_children(PrunedLevel, NextLevel),
+    NewDepth is Depth + 1,
+    bfs(NextLevel, Terms, NewDepth, Rest),
+    append(PrunedLevel, Rest, All).
+	
 % Arvutab puu suuruse ja hinna
 calculate_tree(Cost, Count):-
     findall(X, tree(_, _, X), Nodes),
@@ -117,7 +142,8 @@ test(static_children_half_prune):-
 % PUU LÄBIMISE TESTID
     
 test(static_depth_prune):-
-    Terms = [static_depth_prune],
-    prune_main(Terms, Pruned).
+    true.
+    %Terms = [static_depth_prune],
+    %prune_main(Terms, Pruned).
     
 :- end_tests(lists).

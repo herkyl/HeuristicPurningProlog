@@ -36,3 +36,12 @@ prune_by_cost([[Child, Cost]|T], MaxCost, [[Child, Cost]|NewList]):-
 prune_by_cost([[_, Cost]|T], MaxCost, NewList):-
     Cost > MaxCost,
     prune_by_cost(T, MaxCost, NewList).
+
+merge_children([], []).
+merge_children([[Node, _]|Rest], Append):-
+    tree(Node, _, Children),
+    merge_children(Rest, MergedChildren),
+    append(Children, MergedChildren, Append).
+merge_children([[Node, _]|Rest], MergedChildren):-
+    not(tree(Node, _, _)), %pole lapsi (on leht)
+    merge_children(Rest, MergedChildren).

@@ -6,10 +6,15 @@
 :- dynamic branch_count/1.
 % Tippude millel ei ole harusid koguhind
 :- dynamic branch_cost/1.
+% Tippude arv ilma lehtedeta
+:- dynamic total_child_count/1.
+% Tippude hind ilma lehtedeta
+:- dynamic total_child_cost/1.
 
 total_count(0).
 total_cost(0).
-avg_child_count(0).
+total_child_count(0).
+total_child_cost(0).
 
 % Annab kärpimis termide listi
 prune_terms(Terms):-
@@ -18,12 +23,14 @@ prune_terms(Terms):-
 	C = dynamic_children_depth_prune,
 	D = static_price_prune,
 	E = dynamic_avgerage_cost_prune,
-	Terms = [E].
+	Terms = [D].
 
 % PruneTerms - kärpimis meetodid
 % Children - kärpimata lapsed
 % Depth - sügavus
 % Trimmed - kärbitud laste list
+prune(_, [], _, []).
+prune([], L, _, L).
 prune(PruneTerms, Children,	Depth, Trimmed):-
     sort_by_cost(Children, Sorted),
 	prune_rec(PruneTerms, Sorted, Depth, Trimmed).
@@ -32,7 +39,7 @@ prune(PruneTerms, Children,	Depth, Trimmed):-
 % Call/2+ kasutame =.. ja call/1 asemel
 prune_rec([], Children, _, Children).
 prune_rec([Term|Rest], Children, Depth, R):-
-	call(Term, Children, Depth, Trimmed),
+	ignore(call(Term, Children, Depth, Trimmed)),
 	prune_rec(Rest, Trimmed, Depth, R).
 	
 % Meetod 1
@@ -100,3 +107,28 @@ dynamic_avgerage_cost_prune(Children, _, TrimmedChildren):-
     writeln(Avg),
     prune_by_cost(Children, Avg, TrimmedChildren),
     !.
+    
+%dynamic_average_children_prune(Children, 0, Children).
+%dynamic_average_children_prune(Children, 1, Children).
+dynamic_average_children_prune([], _, []).
+dynamic_average_children_prune(Children, _, TrimmedChildren):-
+    total_child_count(Count),
+    total_child_cost(Cost),
+    avg(Cost, Count, Avg),
+    writeln([Cost, Count, Avg]),
+    dynamic_average_child_prune(Children, Count, Cost, Avg, TrimmedChildren),
+    writeln([Children, TrimmedChildren]).
+
+dynamic_average_child_prune([], _, _, _, []).
+dynamic_average_child_prune([[Child, Cost]|Rest], TotalCount, TotalCost, Avg, [[Child, Cost]|R]):-
+    Cost =< Avg,
+	retract(total_child_count(TotalCount)),
+	retract(total_child_cost(TotalCost)),
+	NewCount is TotalCount + 1,
+	NewCost is TotalCost + Cost,
+	assert(total_child_count(NewCount)),
+	assert(total_child_cost(NewCost)),
+	dynamic_average_child_prune(Rest, NewCount, NewCost, Avg, R).
+dynamic_average_child_prune([[_, Cost]|Rest], TotalCount, TotalCost, Avg, R):-
+    Cost > Avg,
+	dynamic_average_child_prune(Rest, TotalCount, TotalCost, Avg, R).
