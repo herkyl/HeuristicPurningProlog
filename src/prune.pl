@@ -19,11 +19,13 @@ total_child_cost(0).
 % Annab kärpimis termide listi
 prune_terms(Terms):-
 	A = static_depth_prune,
-	B = static_children_half_prune,
-	C = dynamic_children_depth_prune,
-	D = static_price_prune,
-	E = dynamic_avgerage_cost_prune,
-	Terms = [A].
+	B = static_breadth_prune,
+	C = dynamic_depth_breadth_prune,
+	D = static_children_half_prune,
+	E = dynamic_children_depth_prune,
+	F = static_price_prune,
+	G = dynamic_avgerage_cost_prune,
+	Terms = [C].
 
 % PruneTerms - kärpimis meetodid
 % Children - kärpimata lapsed
@@ -52,6 +54,22 @@ static_depth_prune(Children, Depth, TrimmedChildren):-
 		!
 	);
 	empty_list(TrimmedChildren).
+
+% Meetod 2
+% Kärpimine staatilise laiuse järgi
+static_breadth_prune_max(2).
+static_breadth_prune(Children, _, TrimmedChildren):-
+	static_breadth_prune_max(Max),
+	splice(Children, Max, TrimmedChildren).
+	
+% Meetod 3
+% Kärpimine puu sügavuse ja laiuse järgi 
+dynamic_depth_breadth_prune_max(1).
+dynamic_depth_breadth_prune(Children, Depth, TrimmedChildren):-
+    dynamic_depth_breadth_prune_max(Max),
+    MaxChildren is Max * Depth,
+	splice(Children, MaxChildren, TrimmedChildren).
+    
 
 % Meetod 4.1
 % Lõikab ära harud, kui neid on rohkem kui lubatud

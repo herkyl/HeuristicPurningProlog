@@ -45,3 +45,27 @@ merge_children([[Node, _]|Rest], Append):-
 merge_children([[Node, _]|Rest], MergedChildren):-
     not(tree(Node, _, _)), %pole lapsi (on leht)
     merge_children(Rest, MergedChildren).
+
+permutations(List):-
+    permutations(List, 1).
+permutations(List, Size):-
+    length(List, Length),
+    Length < Size, !.
+permutations(List, Size):-
+    splice(List, Size, CutList),
+    print_all_permutations(CutList, Permutations),
+    writeln(Permutations),
+    NewSize is Size + 1,
+    permutations(List, NewSize).
+
+print_all_permutations(List, Permutations):-
+    findall(P, permutation(List, P), Permutations).
+
+combination(0, _, []).
+combination(N, [H|T], [H|Comb]):-
+	N > 0,
+	N1 is N - 1,
+	combination(N1, T, Comb).
+combination(N, [_|T], Comb):-
+	N > 0,
+	combination(N, T, Comb).

@@ -19,7 +19,7 @@ tree(e, 2, [[x, 2], [y, 1], [z, 1], [u, 1], [v, 2]]).
 prune_main:-
     init,
     prune_terms(Terms),
-    prune_main(Terms, _, dfs),
+    prune_main(Terms, _, bfs),
     !.
 
 prune_main(Terms, Pruned, SearchAlgo):-
@@ -64,6 +64,10 @@ dfs([[Child, Cost]|Rest], Terms, [[Child, Cost]|RestList]):-
 bfs(Level, Terms, Pruned):-
 	bfs(Level, Terms, 0, Pruned), !.
 bfs([], _, _, []):- !.
+bfs(Level, Terms, 0, All):- % juurt ei kärbi
+    merge_children(Level, NextLevel),
+    bfs(NextLevel, Terms, 1, Rest),
+    append(Level, Rest, All).
 bfs(Level, Terms, Depth, All):-
     prune(Terms, Level, Depth, PrunedLevel),
     merge_children(PrunedLevel, NextLevel),
@@ -90,7 +94,6 @@ calculate_children([], 0).
 calculate_children([[_, CC]|T], Cost):-
     calculate_children(T, TailCost),
     Cost is CC + TailCost.
-    
     
     
 :- begin_tests(lists).
