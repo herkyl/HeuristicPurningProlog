@@ -24,8 +24,7 @@ prune_terms(Terms):-
 	D = static_children_half_prune,
 	E = dynamic_children_depth_prune,
 	F = static_price_prune,
-	G = dynamic_avgerage_cost_prune,
-	Terms = [C].
+	Terms = [A, B, C, D, E, F].
 
 % PruneTerms - kärpimis meetodid
 % Children - kärpimata lapsed
@@ -125,28 +124,3 @@ dynamic_avgerage_cost_prune(Children, _, TrimmedChildren):-
     writeln(Avg),
     prune_by_cost(Children, Avg, TrimmedChildren),
     !.
-    
-%dynamic_average_children_prune(Children, 0, Children).
-%dynamic_average_children_prune(Children, 1, Children).
-dynamic_average_children_prune([], _, []).
-dynamic_average_children_prune(Children, _, TrimmedChildren):-
-    total_child_count(Count),
-    total_child_cost(Cost),
-    avg(Cost, Count, Avg),
-    writeln([Cost, Count, Avg]),
-    dynamic_average_child_prune(Children, Count, Cost, Avg, TrimmedChildren),
-    writeln([Children, TrimmedChildren]).
-
-dynamic_average_child_prune([], _, _, _, []).
-dynamic_average_child_prune([[Child, Cost]|Rest], TotalCount, TotalCost, Avg, [[Child, Cost]|R]):-
-    Cost =< Avg,
-	retract(total_child_count(TotalCount)),
-	retract(total_child_cost(TotalCost)),
-	NewCount is TotalCount + 1,
-	NewCost is TotalCost + Cost,
-	assert(total_child_count(NewCount)),
-	assert(total_child_cost(NewCost)),
-	dynamic_average_child_prune(Rest, NewCount, NewCost, Avg, R).
-dynamic_average_child_prune([[_, Cost]|Rest], TotalCount, TotalCost, Avg, R):-
-    Cost > Avg,
-	dynamic_average_child_prune(Rest, TotalCount, TotalCost, Avg, R).

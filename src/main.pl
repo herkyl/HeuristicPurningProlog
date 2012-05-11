@@ -21,19 +21,44 @@ prune_main:-
     prune_terms(Terms),
     prune_main(Terms, _, bfs),
     !.
+    
+run:-
+    open('output.csv', write, OS),
+    close(OS),
+    prune_terms(Terms),
+    combinations(Terms, Combis),
+    run(Combis).
+  
+run([]):- !.  
+run([Terms|Rest]):-
+    writeln(['>>>', Terms]),
+    prune_main(Terms, _, bfs),
+    run(Rest).
 
 prune_main(Terms, Pruned, SearchAlgo):-
     init,
     calculate_tree(Cost, Count),
-    writeln(['ALGO:', SearchAlgo, 'Cost:', Cost, 'Count:', Count]),
+    %writeln(['ALGO:', SearchAlgo, 'Cost:', Cost, 'Count:', Count]),
     ignore(call(SearchAlgo, [[root, 0]], Terms, Pruned)),
-	writeln(Pruned),
+	%writeln(Pruned),
     calculate_pruned_tree(Pruned, Cost2, Count2),
-    writeln(['Cost:', Cost2, 'Count:', Count2]), !.
+    writerow(Terms, Cost2, Count2),
+    %writeln(['Cost:', Cost2, 'Count:', Count2]), 
+    !.
     
 prune_main_test(Terms, Pruned, SearchAlgo):-
     init,
     ignore(call(SearchAlgo, [[root, 0]], Terms, Pruned)).
+    
+writerow(Algos, Cost, Count):-
+    open('output.csv', append, OS),
+    write(OS, Algos),
+    write(OS, ';'),
+    write(OS, Cost),
+    write(OS, ';'),
+    write(OS, Count),
+    write(OS, '\n'),
+    close(OS).
     
 init:-
     compile('util.pl'),
