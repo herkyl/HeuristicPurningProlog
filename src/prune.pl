@@ -45,7 +45,7 @@ prune_rec([Term|Rest], Children, Depth, R):-
 	
 % Meetod 1
 % Lõikab ära harud, kui sügavus on üle max
-static_depth_prune_max_depth(2).
+static_depth_prune_max_depth(8).
 static_depth_prune(Children, Depth, TrimmedChildren):-
 	static_depth_prune_max_depth(MaxDepth),
 	(	Depth =< MaxDepth,
@@ -56,7 +56,7 @@ static_depth_prune(Children, Depth, TrimmedChildren):-
 
 % Meetod 2
 % Kärpimine staatilise laiuse järgi
-static_breadth_prune_max(2).
+static_breadth_prune_max(6).
 static_breadth_prune(Children, _, TrimmedChildren):-
 	static_breadth_prune_max(Max),
 	splice(Children, Max, TrimmedChildren).
@@ -66,7 +66,7 @@ static_breadth_prune(Children, _, TrimmedChildren):-
 dynamic_depth_breadth_prune_max(1).
 dynamic_depth_breadth_prune(Children, Depth, TrimmedChildren):-
     dynamic_depth_breadth_prune_max(Max),
-    MaxChildren is Max * Depth,
+    MaxChildren is Max * Depth + 1,
 	splice(Children, MaxChildren, TrimmedChildren).
     
 
@@ -86,7 +86,7 @@ static_children_half_prune(Children, _, TrimmedChildren):-
 	
 % Meetod 5
 % Alampuu kärpimine harude arvu ja sügavuse suhte kaudu 
-dynamic_children_depth_prune_const(2).
+dynamic_children_depth_prune_const(8).
 dynamic_children_depth_prune(Children, Depth, TrimmedChildren):-
     dynamic_children_depth_prune_const(Const),
     Max is Const - Depth,
@@ -94,7 +94,7 @@ dynamic_children_depth_prune(Children, Depth, TrimmedChildren):-
     
 % Meetod 6
 % Kärpimine staatilise hinna järgi
-static_price_prune_max_cost(1).
+static_price_prune_max_cost(7).
 static_price_prune(Children, _, TrimmedChildren):-
     static_price_prune_max_cost(MaxCost),
     static_price_prune2(Children, MaxCost, TrimmedChildren).

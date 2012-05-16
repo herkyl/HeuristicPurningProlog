@@ -8,7 +8,7 @@ splice([H|_], 1, [H]):-!.
 splice([H|T], Count, [H|NewList]):-
     C is Count - 1,
     splice(T, C, NewList).
-    
+
 % Eemaldab listi algusest Count arv elemente
 splice_begin([], _, []).
 splice_begin([H|T], Count, NewList):-
@@ -35,7 +35,7 @@ insert([N,X],[],[[N,X]]).
 avg(_, 0, 999999):-!.
 avg(Cost, Count, Avg):-
     Avg is Cost / Count.
-    
+
 % Lõikab ära kõik lapsed mis ületavad MaxCosti
 prune_by_cost([], _, []) :- !.
 prune_by_cost([[Child, Cost]|T], MaxCost, [[Child, Cost]|NewList]):-
@@ -59,11 +59,11 @@ merge_children([[Node, _]|Rest], MergedChildren):-
 combinations(List, Combinations):-
     length(List, Length),
     combinations(Length, List, Combinations).
-    
-combinations(0, _, []).
+
+combinations(-1, _, []).
 combinations(N, List, Combinations):-
     findall(C, combination(N, List, C), NCombis),
-    N > 0,
+    N > -1,
     N1 is N - 1,
     combinations(N1, List, RestCombis),
     append(NCombis, RestCombis, Combinations).
@@ -76,18 +76,54 @@ combination(N, [H|T], [H|Comb]):-
 combination(N, [_|T], Comb):-
 	N > 0,
 	combination(N, T, Comb).
-    
-   % Names = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,q],
-a(Children):-
-    writeln('A'),
+
+gen:-
+	reset_gensym(el_),
+	a(_, 0);
+	!.
+a(_, 0):-
+	b(1, 0, Children).
+a([], Depth):-
+	Depth >= 10, !.
+a(Children, Depth):-
     random(0, 4, Rnd),
-    b(Rnd, Children).
-b(0, []):-!.
-b(Count, [Name|Rest]):-
-    a(Children),
-    writeln('B'),
-    gensym(node_, Name),
-    Child = tree(Name, 0, Children),
+    b(Rnd, Depth, Children).
+	
+b(0, _, []):-!.
+b(Count, Depth, [Name|Rest]):-
+	NextDepth is Depth + 1,
+    a(Children, NextDepth),
+    gensym(el_, Name),
+	add_random_prices(Children, PricedChildren),
+    Child = tree(Name, Depth, PricedChildren),
     writeln(Child),
-  	C is Count - 1,
-  	b(C, Rest).
+	length(Children, L),
+	writetree(Child, L),
+	C is Count - 1,
+	b(C, Depth, Rest).
+	
+	
+add_random_prices([], []).
+add_random_prices([H|T], [[H, RndPrice]|Rest]):-
+	random(1, 10, RndPrice),
+	add_random_prices(T, Rest).
+	
+writetree(_, 0):-!.
+writetree(Tree, _):-
+    open('gen_tree.txt', append, OS),
+    write(OS, Tree),
+    write(OS, '.\n'),
+    close(OS).
+	
+load_tree:-
+    open('gen_tree_1.txt', read, Stream),
+    read_file(Stream, Lines),
+    close(Stream).
+
+read_file(Stream, []) :-
+    at_end_of_stream(Stream).
+read_file(Stream, [H|T]) :-
+    \+ at_end_of_stream(Stream),
+    read(Stream, H),
+	assert(H),
+    read_file(Stream, T).

@@ -38,12 +38,12 @@ run([Terms|Rest]):-
 prune_main(Terms, Pruned, SearchAlgo):-
     init,
     calculate_tree(Cost, Count),
-    %writeln(['ALGO:', SearchAlgo, 'Cost:', Cost, 'Count:', Count]),
+    writeln(['>>>>>>>>>>>>>>>ALGO:', SearchAlgo, 'Cost:', Cost, 'Count:', Count]),
     ignore(call(SearchAlgo, [[root, 0]], Terms, Pruned)),
 	%writeln(Pruned),
     calculate_pruned_tree(Pruned, Cost2, Count2),
     writerow(Terms, Cost2, Count2),
-    %writeln(['Cost:', Cost2, 'Count:', Count2]), 
+    writeln(['Cost:', Cost2, 'Count:', Count2]), 
     !.
     
 prune_main_test(Terms, Pruned, SearchAlgo):-
@@ -70,7 +70,9 @@ init:-
     retract(total_child_count(_)),
     retract(total_child_cost(_)),
     assert(total_child_count(0)),
-    assert(total_child_cost(0)).
+    assert(total_child_cost(0)),
+	retractall(tree(_, _, _)),
+	load_tree.
 
 % Depth-first search
 dfs([], _, []).
@@ -174,12 +176,12 @@ test(static_children_half_prune):-
     
 % PUU LÄBIMISE TESTID
     
-test(static_depth_prune):-
-    Terms = [static_depth_prune],
-    prune_main_test(Terms, List1, dfs),
-    List1 == [[root,0],[a,1],[c,1],[d,1],[b,1],[e,1]],
-    prune_main_test(Terms, List2, bfs),
-    List2 == [[root,0],[a,1],[b,1],[c,1],[d,1],[e,1]]. 
+%test(static_depth_prune):-
+%    Terms = [static_depth_prune],
+%    prune_main_test(Terms, List1, dfs),
+%    List1 == [[root,0],[a,1],[c,1],[d,1],[b,1],[e,1]],
+%    prune_main_test(Terms, List2, bfs),
+%    List2 == [[root,0],[a,1],[b,1],[c,1],[d,1],[e,1]]. 
      
     
 :- end_tests(lists).
