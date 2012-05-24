@@ -84,7 +84,7 @@ gen:-
 a(_, 0):-
 	b(1, 0, Children).
 a([], Depth):-
-	Depth >= 10, !.
+	Depth > 10, !.
 a(Children, Depth):-
     random(0, 4, Rnd),
     b(Rnd, Depth, Children).
@@ -116,7 +116,7 @@ writetree(Tree, _):-
     close(OS).
 	
 load_tree:-
-    open('gen_tree_1.txt', read, Stream),
+    open('gen_tree.txt', read, Stream),
     read_file(Stream, Lines),
     close(Stream).
 

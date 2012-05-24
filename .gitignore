@@ -1,2 +1,5 @@
 *.project
 *.pl~
+*.csv
+*.xls
+*.txt

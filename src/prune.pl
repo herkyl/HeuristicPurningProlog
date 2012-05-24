@@ -21,10 +21,12 @@ prune_terms(Terms):-
 	A = static_depth_prune,
 	B = static_breadth_prune,
 	C = dynamic_depth_breadth_prune,
-	D = static_children_half_prune,
-	E = dynamic_children_depth_prune,
-	F = static_price_prune,
-	Terms = [A, B, C, D, E, F].
+	D = static_children_prune,
+	E = static_children_half_prune,
+	F = dynamic_children_depth_prune,
+	G = static_price_prune,
+	H = dynamic_avgerage_cost_prune,
+	Terms = [A, B, C, D, E, F, G, H].
 
 % PruneTerms - kärpimis meetodid
 % Children - kärpimata lapsed
@@ -72,7 +74,7 @@ dynamic_depth_breadth_prune(Children, Depth, TrimmedChildren):-
 
 % Meetod 4.1
 % Lõikab ära harud, kui neid on rohkem kui lubatud
-static_children_prune_max_children(1).
+static_children_prune_max_children(2).
 static_children_prune(Children, _, TrimmedChildren):-
 	static_children_prune_max_children(MaxChildren),
 	splice(Children, MaxChildren, TrimmedChildren).
@@ -109,18 +111,30 @@ static_price_prune2([[_,C]|T], MaxCost, T2):-
     
 % Meetod 7
 % Kärpimine keskmise tipu hinna järgi 
-dynamic_avgerage_cost_prune(Children, _, TrimmedChildren):-
+dynamic_avgerage_cost_prune(Children, Depth, Children):-
+    Depth < 4,
+	total_count(Count),
+    total_cost(Cost),
+	calculate_children(Children, ChildrenCost),
+    length(Children, Length),
+    NewCost = Cost + ChildrenCost,
+    NewCount = Count + Length,
+    retract(total_count(_)),
+    retract(total_cost(_)),
+    assert(total_cost(NewCost)),
+    assert(total_count(NewCount)),
+	!.
+dynamic_avgerage_cost_prune(Children, Depth, TrimmedChildren):-
     total_count(Count),
     total_cost(Cost),
     calculate_children(Children, ChildrenCost),
     length(Children, Length),
     NewCost is Cost + ChildrenCost,
     NewCount is Count + Length,
-    retract(total_count(Count)),
-    retract(total_cost(Cost)),
+    retract(total_count(_)),
+    retract(total_cost(_)),
     assert(total_cost(NewCost)),
     assert(total_count(NewCount)),
     avg(Cost, Count, Avg),
-    writeln(Avg),
     prune_by_cost(Children, Avg, TrimmedChildren),
     !.

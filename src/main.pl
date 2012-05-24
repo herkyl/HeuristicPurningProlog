@@ -9,10 +9,10 @@
 %            |  |  |  |  |
 %            x  y  z  u  v
 
-tree(root, 0, [[a, 1], [b, 1]]).
-tree(a, 1, [[c, 1], [d, 1]]).
-tree(b, 1, [[e, 1]]).
-tree(e, 2, [[x, 2], [y, 1], [z, 1], [u, 1], [v, 2]]).
+% tree(root, 0, [[a, 1], [b, 1]]).
+% tree(a, 1, [[c, 1], [d, 1]]).
+% tree(b, 1, [[e, 1]]).
+% tree(e, 2, [[x, 2], [y, 1], [z, 1], [u, 1], [v, 2]]).
 
 
 % PEA PREDIKAAT - jooksutab programmi
@@ -40,7 +40,7 @@ prune_main(Terms, Pruned, SearchAlgo):-
     calculate_tree(Cost, Count),
     writeln(['>>>>>>>>>>>>>>>ALGO:', SearchAlgo, 'Cost:', Cost, 'Count:', Count]),
     ignore(call(SearchAlgo, [[root, 0]], Terms, Pruned)),
-	%writeln(Pruned),
+	% writeln(Pruned),
     calculate_pruned_tree(Pruned, Cost2, Count2),
     writerow(Terms, Cost2, Count2),
     writeln(['Cost:', Cost2, 'Count:', Count2]), 
@@ -63,14 +63,14 @@ writerow(Algos, Cost, Count):-
 init:-
     compile('util.pl'),
     compile('prune.pl'),
-    retract(total_count(_)),
-    retract(total_cost(_)),
+    retractall(total_count(_)),
+    retractall(total_cost(_)),
     assert(total_count(0)),
     assert(total_cost(0)),
     retract(total_child_count(_)),
     retract(total_child_cost(_)),
     assert(total_child_count(0)),
-    assert(total_child_cost(0)),
+    assert(total_child_cost(0)).
 	retractall(tree(_, _, _)),
 	load_tree.
 
